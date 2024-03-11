@@ -36,4 +36,4 @@ class Profil:
 
 profil1 = Profil()
 pseudo, progression, ressources = profil1.get_profil()
-print(f"Pseudo : {pseudo}\nProgression : {progression}\nRessouces : {ressources}\n")
+print(f"Pseudo : {pseudo}\nProgression : {progression}\nRessources : {ressources}\n")
