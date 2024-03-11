@@ -3,3 +3,4 @@ import sys
 import mob
 import graphisme
 import profil
+import display
