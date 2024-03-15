@@ -1,11 +1,11 @@
 import os
 class Profil:
-    def __init__(self, pseudo="", progression=0.0, ressource_monnaie=0, ressource_dechet=0,ressource_carbone=10):
-        self.pseudo = pseudo
-        self.progression = progression
-        self.ressource_monnaie = ressource_monnaie
-        self.ressource_dechet = ressource_dechet
-        self.ressource_carbone = ressource_carbone
+    def __init__(self):
+        self.pseudo = pseudo = ""
+        self.progression = progression = 0.00
+        self.ressource_monnaie = ressource_monnaie = 0
+        self.ressource_dechet = ressource_dechet = 0
+        self.ressource_carbone = ressource_carbone = 10
     def ask_pseudo(self):
         while self.pseudo == "":
             self.pseudo = input("Enter a pseudo : ")

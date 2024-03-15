@@ -1,11 +1,9 @@
 import pygame as pg
 import sys
 
-
 pg.init()
 
 running = True
-BLANC = (255, 255, 255)
 hauteur = 600
 largeur = 800
 couleur_texte = (0,0,0)
@@ -26,9 +24,12 @@ def ecran_accueil():
             if event.type == pg.KEYDOWN:
                 return
         fenetre.blit(image_background, (0,0))
-        texte = police.render("Appuyez sur une touche pour démarrer", True, couleur_texte)
-        texte_rect = texte.get_rect(center=(largeur//2, hauteur//2))
-        fenetre.blit(texte, texte_rect)
+        texte1 = police.render("Appuyez sur une touche pour démarrer", True, couleur_texte)
+        texte_rect1 = texte1.get_rect(center=(largeur//2, hauteur//2))
+        fenetre.blit(texte1, texte_rect1)
+        texte2 = police.render("Appuyez sur flèche du bas pour quitter", True, couleur_texte)
+        texte_rect2 = texte2.get_rect(center=(largeur // 2, hauteur // 2.2))
+        fenetre.blit(texte2, texte_rect2)
         pg.display.flip()
 
 ecran_accueil()
