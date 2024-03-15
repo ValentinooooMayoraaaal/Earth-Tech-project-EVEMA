@@ -1,51 +1,34 @@
-import pygame
+import pygame as pg
 import sys
 
-# Initialisation de Pygame
-pygame.init()
 
-# Définition des couleurs
-BLANC = (255, 255, 255)
+pg.init()
 
-# Taille initiale de la fenêtre
-largeur = 800
-hauteur = 600
-
-# Création de la fenêtre
-fenetre = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
-pygame.display.set_caption('Display')
-
-# Boucle de jeu
 running = True
-while running:
-    # Gestion des événements
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.VIDEORESIZE:
-            largeur = event.w
-            hauteur = event.h
-            fenetre = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
-                # Basculement entre le mode fenêtré et le mode plein écran avec la touche "f"
-                if fenetre.get_flags() & pygame.FULLSCREEN:
-                    fenetre = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
-                else:
-                    fenetre = pygame.display.set_mode((largeur, hauteur), pygame.FULLSCREEN)
+BLANC = (255, 255, 255)
+hauteur = 600
+largeur = 800
+couleur_texte = (0,0,0)
+police = pg.font.Font(None, 36)
 
-    # Créer un tampon de trame hors écran
-    tampon = pygame.Surface((largeur, hauteur))
-    tampon.fill(BLANC)
+fenetre = pg.display.set_mode((largeur, hauteur))
+pg.display.set_caption("Maeve World")
 
-    # Copier le tampon sur la fenêtre principale
-    fenetre.blit(tampon, (0, 0))
-    # Rafraîchir l'écran
-    pygame.display.flip()
+image_background = pg.image.load("assets/img.png")
+image_background = pg.transform.scale(image_background, (largeur, hauteur))
+def ecran_accueil():
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
 
-    # Limiter la vitesse de la boucle
-    pygame.time.Clock().tick(60)
+            if event.type == pg.KEYDOWN:
+                return
+        fenetre.blit(image_background, (0,0))
+        texte = police.render("Appuyez sur une touche pour démarrer", True, couleur_texte)
+        texte_rect = texte.get_rect(center=(largeur//2, hauteur//2))
+        fenetre.blit(texte, texte_rect)
+        pg.display.flip()
 
-# Quitter Pygame
-pygame.quit()
-sys.exit()
+ecran_accueil()
