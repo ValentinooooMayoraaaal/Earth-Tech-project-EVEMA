@@ -1,5 +1,6 @@
 import pygame as pg
 import sys
+from button import Button
 
 pg.init()
 
@@ -27,7 +28,7 @@ def ecran_accueil():
         texte1 = police.render("Appuyez sur une touche pour démarrer", True, couleur_texte)
         texte_rect1 = texte1.get_rect(center=(largeur//2, hauteur//2))
         fenetre.blit(texte1, texte_rect1)
-        texte2 = police.render("Appuyez sur flèche du bas pour quitter", True, couleur_texte)
+        texte2 = police.render("Appuyez sur une touche pour quitter", True, couleur_texte)
         texte_rect2 = texte2.get_rect(center=(largeur // 2, hauteur // 2.2))
         fenetre.blit(texte2, texte_rect2)
         pg.display.flip()
