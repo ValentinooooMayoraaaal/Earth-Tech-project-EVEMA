@@ -35,7 +35,7 @@ class Button(pg.sprite.Sprite):
         window.blit(text_surface, text_rect)
 
 #font = pg.font.Font("chemin_vers_votre_police.ttf", taille_de_la_police)
-buttontest = Button(300, 250, 100, 100, (25,25,25), "Click Here !", "assets/JosefinSans-Bold.ttf", 18, "white")
+buttontest = Button(300, 250, 100, 100, (25,25,25), "Click Here !", "assets/font.ttf", 18, "white")
 window = pg.display.set_mode((length, height))
 window.fill(white)
 pg.display.set_caption('Test_Button')
