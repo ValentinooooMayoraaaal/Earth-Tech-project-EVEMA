@@ -35,8 +35,7 @@ class Button(pg.sprite.Sprite):
         window.blit(text_surface, text_rect)
 
 #font = pg.font.Font("chemin_vers_votre_police.ttf", taille_de_la_police)
-#MadimiOneRegular.ttf est une font que j'ai choisi sur Google Fonts je ne vais pas la commit sur la branche main
-buttontest = Button(300, 250, 100, 100, (0,0,0), "Click Here !", "assets/MadimiOne-Regular.ttf", 18, "light blue")
+buttontest = Button(300, 250, 100, 100, (25,25,25), "Click Here !", "assets/JosefinSans-Bold.ttf", 18, "white")
 window = pg.display.set_mode((length, height))
 window.fill(white)
 pg.display.set_caption('Test_Button')
