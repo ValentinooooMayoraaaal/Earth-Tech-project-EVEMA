@@ -2,12 +2,13 @@ import pygame as pg
 import sys
 pg.init()
 
-length = 800
-height = 800
+length = 700
+height = 600
 white = (255, 255, 255)
 running = True
-class Button:
+class Button(pg.sprite.Sprite):
     def __init__(self, x, y, height, length, color, text, font_police, font_size, font_color):
+        super(Button, self).__init__()
         self.x = x
         self.y = y
         self.height = height
@@ -24,7 +25,8 @@ class Button:
     def is_clicked(self):
         button = pg.Rect(self.x, self.y, self.height, self.length)
         if button.collidepoint(pg.mouse.get_pos()) and pg.mouse.get_pressed()[0]:
-            print("Pressed")
+            print("Clicked")
+
     def draw_font(self):
         button = pg.Rect(self.x, self.y, self.height, self.length)
         text_surface = self.font.render(self.text, True, self.font_color)
@@ -34,10 +36,11 @@ class Button:
 
 #font = pg.font.Font("chemin_vers_votre_police.ttf", taille_de_la_police)
 #MadimiOneRegular.ttf est une font que j'ai choisi sur Google Fonts je ne vais pas la commit sur la branche main
-buttontest = Button(400, 400, 100, 100, (0,0,0), "Click Here !", "assets/MadimiOne-Regular.ttf", 16, "light blue")
+buttontest = Button(300, 250, 100, 100, (0,0,0), "Click Here !", "assets/MadimiOne-Regular.ttf", 18, "light blue")
 window = pg.display.set_mode((length, height))
 window.fill(white)
 pg.display.set_caption('Test_Button')
+
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
