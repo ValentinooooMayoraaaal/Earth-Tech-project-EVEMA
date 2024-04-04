@@ -27,6 +27,10 @@ noms = ["Mob qui rajoute du CO2", "Mob qui jette les déchets", "Mob passif"]
 image = pg.image.load("assets/alien.png")
 image = pg.transform.scale(image, (80,80))
 
+# image du dechet spawn par le mob
+img_dechet = pg.image.load("assets/dechets.png")
+img_dechet = pg.transform.scale(img_dechet, (30,30))
+
 # Paramètres de la fenêtre de jeu
 window = pg.display.set_mode((length, height))
 pg.display.set_caption('Test Mob')
@@ -42,7 +46,7 @@ class Mobs(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 540
         self.rect.y = 600
-        self.vitesse = 5
+        self.vitesse = 10
         self.etat = None
 
 
@@ -60,8 +64,9 @@ class Mobs(pg.sprite.Sprite):
 
     def jette_un_dechet(self, etat):
         # create a "dechet" object to throw at position of the mob
+        etat = "jette un déchet"
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
-        dechet = pg.draw.rect(window, self.rect.x, self.rect.y, 15, 15)
+        window.blit(img_dechet, (self.rect.x, self.rect.y))
         print("Je jette un déchet")
 
     def rajoute_du_co2(self,etat, co2):
@@ -119,6 +124,7 @@ while running:
             pg.quit()
             sys.exit()
 
+    mob.jette_un_dechet(mob.etat)
     mob.mouvement_mob()
     pg.display.flip()
     clock.tick(60)
