@@ -7,6 +7,7 @@ class Game:
         self.mob = Mobs()
         self.all_mobs = pg.sprite.Group()
 
+    # check les collisions de l'alien avec les bords de la fenêtre
     def check_collision(self, sprite, group):
         return pg.sprite.spritecollide(sprite, group, False, pg.sprite.collide_mask)
 
