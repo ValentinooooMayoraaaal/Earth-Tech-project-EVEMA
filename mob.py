@@ -3,6 +3,7 @@ import time
 import pygame as pg
 import sys
 
+# initialise pygame
 pg.init()
 
 # Temps du jeu
@@ -49,36 +50,43 @@ class Mobs(pg.sprite.Sprite):
         self.vitesse = 10
         self.etat = None
 
-
+    # fonction qui crée le mob
     def spawn(self):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         print("I spawned !")
+
+    # fonction qui affiche sur le terminal les informations du mob
     def print_infos(self):
         print(f"nom = {self.nom}, couleur = {self.couleur}, vitesse = {self.vitesse}, etat = {self.etat}")
 
+    # fonction qui enlève le mob de l'écran et du sprite groupe
     def despawn(self):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         self.all_mobs.remove()
         # mob.kill()
         print("I died !")
 
-    def jette_un_dechet(self, etat):
+    # mob qui ajoute un déchet sur le terrain à une position donnée
+    def jette_un_dechet(self,x, y):
         # create a "dechet" object to throw at position of the mob
         etat = "jette un déchet"
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
-        window.blit(img_dechet, (self.rect.x, self.rect.y))
-        print("Je jette un déchet")
+        window.blit(img_dechet, (x, y))
+        print(f"Je jette un déchet à {x} : {y}")
 
+    # mob qui ajoute du CO2
     def rajoute_du_co2(self,etat, co2):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         # add CO2 to the CO2 progression
-        co2 += random.randint(0.01, 0.05)
+        co2 += random.randint(0.001, 0.025)
         print("Je rajoutes du CO2")
 
+    # mob passif
     def passif(self, etat):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         print("Je suis passif")
 
+    # fonction qui détermine les mouvements aléatoires du mobs sur le terrain, collisions non comprises
     def mouvement_mob(self):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         # Choix aléatoire d'une action toutes les 1000 millisecondes (1 seconde)
@@ -93,11 +101,32 @@ class Mobs(pg.sprite.Sprite):
             elif action == '3':
                 self.rect.y -= self.vitesse
 
+    # fonction qui applique le filtre de couleur sur les mobs pour les différencier visuellement
     def filtre_mob(self):
         filtre = pg.Surface((80, 80))
         filtre.set_alpha(128)
         filtre.fill((255, 0, 0))
         self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+
+    def get_x(self):
+        pos_x = self.rect.x
+        t = 0
+        while True :
+            t+=1
+            if t == 10:
+                x = pos_x
+                break
+        return x
+    def get_y(self):
+        pos_y = self.rect.y
+        t = 0
+        while True :
+            t+=1
+            if t == 10:
+                y = pos_y
+                break
+        return y
+
 
 
 # création des objets
@@ -123,8 +152,10 @@ while running:
             running = False
             pg.quit()
             sys.exit()
-
-    mob.jette_un_dechet(mob.etat)
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE:
+                mob.jette_un_dechet(mob.get_x(), mob.get_y())
+                print("success")
     mob.mouvement_mob()
     pg.display.flip()
     clock.tick(60)
