@@ -48,7 +48,8 @@ class Mobs(pg.sprite.Sprite):
         self.rect.x = 540
         self.rect.y = 600
         self.vitesse = 10
-        self.etat = None
+        self.etat = ["Passif", "Co2", "Dechet"]
+        self.co2 = 0
 
     # fonction qui crée le mob
     def spawn(self):
@@ -75,10 +76,12 @@ class Mobs(pg.sprite.Sprite):
         print(f"Je jette un déchet à {x} : {y}")
 
     # mob qui ajoute du CO2
-    def rajoute_du_co2(self,etat, co2):
+    def rajoute_du_co2(self,etat):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         # add CO2 to the CO2 progression
-        co2 += random.randint(0.001, 0.025)
+        self.co2 += random.randint(1, 5)
+        text_surface = font.render(f"co2 : {self.co2}", True, (255, 255, 255))
+        window.blit(text_surface, text_rect)
         print("Je rajoutes du CO2")
 
     # mob passif
@@ -103,10 +106,27 @@ class Mobs(pg.sprite.Sprite):
 
     # fonction qui applique le filtre de couleur sur les mobs pour les différencier visuellement
     def filtre_mob(self):
-        filtre = pg.Surface((80, 80))
-        filtre.set_alpha(128)
-        filtre.fill((255, 0, 0))
-        self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+
+        # défini un état de mob random entre les 3 disponibles
+        random_etat = self.etat[random.randint(0,2)]
+
+        if random_etat == "Passif":
+            filtre = pg.Surface((80, 80))
+            filtre.set_alpha(128)
+            filtre.fill((0, 0, 0))
+            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+
+        elif random_etat == "Co2":
+            filtre = pg.Surface((80, 80))
+            filtre.set_alpha(128)
+            filtre.fill((125, 0, 0))
+            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+
+        elif random_etat == "Dechet":
+            filtre = pg.Surface((80, 80))
+            filtre.set_alpha(128)
+            filtre.fill((255, 0, 0))
+            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
     def get_x(self):
         pos_x = self.rect.x
@@ -152,10 +172,25 @@ while running:
             running = False
             pg.quit()
             sys.exit()
+
+        # Events en fontions des inputs clavier
         elif event.type == pg.KEYDOWN:
+
             if event.key == pg.K_SPACE:
+                # Si input clavier est espace alors spawn un déchet
                 mob.jette_un_dechet(mob.get_x(), mob.get_y())
                 print("success")
+
+            if event.key == pg.K_z:
+                # Si input clavier est "Z" alors afficher et ajouter co2
+                mob.rajoute_du_co2(None)
+                print("success")
+
+    font = pg.font.Font(None, 36)
+    text_surface = font.render(f"co2 : {co2}", True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.center = (height // 2, length // 2)
+    #window.blit(text_surface, text_rect)
     mob.mouvement_mob()
     pg.display.flip()
     clock.tick(60)
