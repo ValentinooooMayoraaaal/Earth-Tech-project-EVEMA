@@ -8,9 +8,10 @@ pg.init()
 
 # Temps du jeu
 clock = pg.time.Clock()
+FPS = 60
 
 # variable locale à récupérer avec la data du joueur
-co2 = 0
+co2 = 0.00
 
 # taille de la fenêtre de jeu
 length = 1080
@@ -19,6 +20,8 @@ height = 720
 # Couleurs en tant que variables
 white = (255, 255, 255)
 sand = (235, 170, 80)
+background_image = pg.image.load("assets/fondearthtech.jpg")
+background_image = pg.transform.scale(background_image,(length,height))
 couleurs_mobs = [(255,255,50), (255,120,0), (255,0,0)]
 
 # noms des mobs à print uniquement dans le terminal
@@ -26,16 +29,43 @@ noms = ["Mob qui rajoute du CO2", "Mob qui jette les déchets", "Mob passif"]
 
 # image du mob ainsi que l'application du filtre de couleur pour différencier les mobs
 image = pg.image.load("assets/alien.png")
-image = pg.transform.scale(image, (80,80))
+image = pg.transform.scale(image, (60,60))
 
 # image du dechet spawn par le mob
 img_dechet = pg.image.load("assets/dechets.png")
-img_dechet = pg.transform.scale(img_dechet, (30,30))
+img_dechet = pg.transform.scale(img_dechet, (20,20))
+dechet_rect = img_dechet.get_rect()
+
+# font settings
+font = pg.font.Font(None, 36)  # Police par défaut, taille 36
 
 # Paramètres de la fenêtre de jeu
-window = pg.display.set_mode((length, height))
+screen = pg.display.set_mode((length, height))
 pg.display.set_caption('Test Mob')
 
+# code classe déchet par chatgpt
+# Classe pour gérer les déchets
+class Dechet:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.rect = dechet_rect.copy()
+        self.rect.topleft = (x, y)
+
+    def draw(self, surface):
+        pg.draw.circle(surface, "RED", (self.x, self.y), 10)
+        surface.blit(img_dechet, (self.x, self.y))
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+
+# Liste pour stocker les objets déchet
+dechets = []
+
+# Fonction pour créer un déchet
+def jette_un_dechet(x, y):
+    dechets.append(Dechet(x, y))
+# fin du code chatgpt
 
 # Classe Mobs
 class Mobs(pg.sprite.Sprite):
@@ -68,20 +98,21 @@ class Mobs(pg.sprite.Sprite):
         print("I died !")
 
     # mob qui ajoute un déchet sur le terrain à une position donnée
-    def jette_un_dechet(self,x, y):
+    def jette_un_dechet1(self,x, y):
         # create a "dechet" object to throw at position of the mob
         etat = "jette un déchet"
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
-        window.blit(img_dechet, (x, y))
+        screen.blit(img_dechet, (x, y))
+        dechets.append(Dechets(x,y))
         print(f"Je jette un déchet à {x} : {y}")
 
     # mob qui ajoute du CO2
-    def rajoute_du_co2(self,etat):
+    def rajoute_du_co2(self, etat):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
         # add CO2 to the CO2 progression
         self.co2 += random.randint(1, 5)
-        text_surface = font.render(f"co2 : {self.co2}", True, (255, 255, 255))
-        window.blit(text_surface, text_rect)
+        #text_surface = font.render(f"co2 : {self.co2}", True, (255, 255, 255))
+        #screen.blit(text_surface, text_rect)
         print("Je rajoutes du CO2")
 
     # mob passif
@@ -147,21 +178,20 @@ class Mobs(pg.sprite.Sprite):
                 break
         return y
 
-
-
 # création des objets
 mob = Mobs()
-mob.filtre_mob()
+# mob.filtre_mob() // Les couleurs sont à paufiner donc je vais l'ignorer pour l'instant
+
 # Boucle du jeu
 running = True
 
 while running:
     # à executer hors conditions
 
-    window.fill(sand)
-    window.blit(mob.image,mob.rect)
-    #window.blit(mob_Dechet.image, (50, 0))
-    #window.blit(mob_Passif.image, (0, 0))
+    screen.blit(background_image,(0,0))
+    screen.blit(mob.image,mob.rect)
+    #screen.blit(mob_Dechet.image, (50, 0))
+    #screen.blit(mob_Passif.image, (0, 0))
 
     pg.display.flip()
 
@@ -178,19 +208,35 @@ while running:
 
             if event.key == pg.K_SPACE:
                 # Si input clavier est espace alors spawn un déchet
-                mob.jette_un_dechet(mob.get_x(), mob.get_y())
+                jette_un_dechet(mob.get_x(), mob.get_y())
                 print("success")
 
             if event.key == pg.K_z:
                 # Si input clavier est "Z" alors afficher et ajouter co2
-                mob.rajoute_du_co2(None)
+                co2+=10**-2*random.randint(1,5)
                 print("success")
 
-    font = pg.font.Font(None, 36)
-    text_surface = font.render(f"co2 : {co2}", True, (255, 255, 255))
-    text_rect = text_surface.get_rect()
-    text_rect.center = (height // 2, length // 2)
-    #window.blit(text_surface, text_rect)
+        # code chatgpt
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Clic gauche
+                pos = event.pos
+                # Vérifiez si un déchet a été cliqué
+                for dechet in dechets[:]:  # Itérer sur une copie de la liste
+                    if dechet.is_clicked(pos):
+                        dechets.remove(dechet)
+                        print("dechet removed")
+    for dechet in dechets :
+        dechet.draw(screen)
+
+    counter_text = font.render(f"Counter CO2: {round(co2,2)}", True, (0, 0, 0))
+    screen.blit(counter_text, (10, 10))
+    # fin du code chatgpt
+
+    #font = pg.font.Font(None, 36)
+    #text_surface = font.render(f"co2 : {co2}", True, (255, 255, 255))
+    #text_rect = text_surface.get_rect()
+    #text_rect.center = (height // 2, length // 2)
+    #screen.blit(text_surface, text_rect)
     mob.mouvement_mob()
     pg.display.flip()
-    clock.tick(60)
+    clock.tick(FPS)
