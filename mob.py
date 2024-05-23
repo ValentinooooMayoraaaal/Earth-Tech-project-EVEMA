@@ -32,8 +32,8 @@ image = pg.image.load("assets/alien.png")
 image = pg.transform.scale(image, (60,60))
 
 # image du dechet spawn par le mob
-img_dechet = pg.image.load("assets/dechets.png")
-img_dechet = pg.transform.scale(img_dechet, (20,20))
+img_dechet = pg.image.load("assets/trash_bag_earth_tech.png")
+img_dechet = pg.transform.scale(img_dechet, (30,30))
 dechet_rect = img_dechet.get_rect()
 
 # font settings
@@ -53,7 +53,6 @@ class Dechet:
         self.rect.topleft = (x, y)
 
     def draw(self, surface):
-        pg.draw.circle(surface, "RED", (self.x, self.y), 10)
         surface.blit(img_dechet, (self.x, self.y))
 
     def is_clicked(self, pos):
@@ -108,9 +107,10 @@ class Mobs(pg.sprite.Sprite):
 
     # mob qui ajoute du CO2
     def rajoute_du_co2(self, etat):
-        mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
+        # Choix aléatoire d'une action toutes les 20 millisecondes
+        if pg.time.get_ticks() % 20 == 0:
         # add CO2 to the CO2 progression
-        self.co2 += random.randint(1, 5)
+            self.co2 += random.randint(1, 5)*10**-2
         #text_surface = font.render(f"co2 : {self.co2}", True, (255, 255, 255))
         #screen.blit(text_surface, text_rect)
         print("Je rajoutes du CO2")
@@ -123,7 +123,7 @@ class Mobs(pg.sprite.Sprite):
     # fonction qui détermine les mouvements aléatoires du mobs sur le terrain, collisions non comprises
     def mouvement_mob(self):
         mob = pg.Rect(self.rect.x, self.rect.y, 20, 20)
-        # Choix aléatoire d'une action toutes les 1000 millisecondes (1 seconde)
+        # Choix aléatoire d'une action toutes les 20 millisecondes
         if pg.time.get_ticks() % 20 == 0:
             action = random.choice(['0', '1', '2', '3'])
             if action == '0':
@@ -136,28 +136,29 @@ class Mobs(pg.sprite.Sprite):
                 self.rect.y -= self.vitesse
 
     # fonction qui applique le filtre de couleur sur les mobs pour les différencier visuellement
-    def filtre_mob(self):
+    def filtre_mob(self,etat):
+        if etat is None:
+            # défini un état de mob random entre les 3 disponibles
+            random_etat = self.etat[random.randint(0,2)]
+        else:
+            random_etat = None
+            if (random_etat or etat) == "Passif":
+                filtre = pg.Surface((80, 80))
+                filtre.set_alpha(128)
+                filtre.fill((0, 0, 0))
+                self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
-        # défini un état de mob random entre les 3 disponibles
-        random_etat = self.etat[random.randint(0,2)]
+            elif (random_etat or etat) == "Co2":
+                filtre = pg.Surface((80, 80))
+                filtre.set_alpha(128)
+                filtre.fill((125, 0, 0))
+                self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
-        if random_etat == "Passif":
-            filtre = pg.Surface((80, 80))
-            filtre.set_alpha(128)
-            filtre.fill((0, 0, 0))
-            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
-
-        elif random_etat == "Co2":
-            filtre = pg.Surface((80, 80))
-            filtre.set_alpha(128)
-            filtre.fill((125, 0, 0))
-            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
-
-        elif random_etat == "Dechet":
-            filtre = pg.Surface((80, 80))
-            filtre.set_alpha(128)
-            filtre.fill((255, 0, 0))
-            self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+            elif (random_etat or etat) == "Dechet":
+                filtre = pg.Surface((80, 80))
+                filtre.set_alpha(128)
+                filtre.fill((255, 0, 0))
+                self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
     def get_x(self):
         pos_x = self.rect.x
@@ -179,20 +180,39 @@ class Mobs(pg.sprite.Sprite):
         return y
 
 # création des objets
-mob = Mobs()
-# mob.filtre_mob() // Les couleurs sont à paufiner donc je vais l'ignorer pour l'instant
+mob_dechet = Mobs()
+mob_passif = Mobs()
+mob_co2 = Mobs()
 
+# Les couleurs sont à paufiner donc je vais l'ignorer pour l'instant, les mobs sont tous avec un filtre noir peut importe leur attribut 'etat"
+#mob_dechet.filtre_mob("Dechet")
+#mob_passif.filtre_mob("Passif")
+#mob_co2.filtre_mob("Co2")
+
+counter_text = font.render(f"Counter CO2: {round(co2,2)}", True, (0, 0, 0))
 # Boucle du jeu
 running = True
 
 while running:
     # à executer hors conditions
+    # Toutes les 1000 millisecondes (1 seconde) du co2 s'ajoute SI un mob passif est présent, il manque un "while mob passif is alive"
+    if pg.time.get_ticks() % 1000 == 0:
+        co2 += 10 ** -2 * random.randint(1, 5)
 
+    # blit de l'écran avec l'image de backgroud, le mob et le co2
     screen.blit(background_image,(0,0))
-    screen.blit(mob.image,mob.rect)
-    #screen.blit(mob_Dechet.image, (50, 0))
-    #screen.blit(mob_Passif.image, (0, 0))
+    screen.blit(mob_dechet.image, mob_dechet.rect)
+    screen.blit(mob_passif.image,mob_passif.rect)
+    screen.blit(mob_co2.image,mob_co2.rect)
+    counter_text = font.render(f"Counter CO2: {round(co2, 2)}", True, (0, 0, 0))
+    screen.blit(counter_text, (10, 10))
+    for dechet in dechets :
+        dechet.draw(screen)
 
+    # mouvement du mob
+    mob_dechet.mouvement_mob()
+    mob_passif.mouvement_mob()
+    mob_co2.mouvement_mob()
     pg.display.flip()
 
     for event in pg.event.get():
@@ -211,11 +231,6 @@ while running:
                 jette_un_dechet(mob.get_x(), mob.get_y())
                 print("success")
 
-            if event.key == pg.K_z:
-                # Si input clavier est "Z" alors afficher et ajouter co2
-                co2+=10**-2*random.randint(1,5)
-                print("success")
-
         # code chatgpt
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == 1:  # Clic gauche
@@ -225,18 +240,7 @@ while running:
                     if dechet.is_clicked(pos):
                         dechets.remove(dechet)
                         print("dechet removed")
-    for dechet in dechets :
-        dechet.draw(screen)
+                        # fin du code chatgpt
 
-    counter_text = font.render(f"Counter CO2: {round(co2,2)}", True, (0, 0, 0))
-    screen.blit(counter_text, (10, 10))
-    # fin du code chatgpt
-
-    #font = pg.font.Font(None, 36)
-    #text_surface = font.render(f"co2 : {co2}", True, (255, 255, 255))
-    #text_rect = text_surface.get_rect()
-    #text_rect.center = (height // 2, length // 2)
-    #screen.blit(text_surface, text_rect)
-    mob.mouvement_mob()
     pg.display.flip()
     clock.tick(FPS)
