@@ -3,7 +3,7 @@ import time
 import pygame as pg
 import sys
 
-# initialise pygame
+# initialise pyJEU
 pg.init()
 
 # Temps du jeu
@@ -12,16 +12,18 @@ FPS = 60
 
 # variable locale à récupérer avec la data du joueur
 co2 = 0.00
-
+MENU = 0
+JEU = 1
+state = MENU
 # taille de la fenêtre de jeu
-length = 1080
+width = 1080
 height = 720
 
 # Couleurs en tant que variables
 white = (255, 255, 255)
 sand = (235, 170, 80)
 background_image = pg.image.load("assets/fondearthtech.jpg")
-background_image = pg.transform.scale(background_image,(length,height))
+background_image = pg.transform.scale(background_image,(width,height))
 couleurs_mobs = [(255,255,50), (255,120,0), (255,0,0)]
 
 # noms des mobs à print uniquement dans le terminal
@@ -40,8 +42,8 @@ dechet_rect = img_dechet.get_rect()
 font = pg.font.Font(None, 36)  # Police par défaut, taille 36
 
 # Paramètres de la fenêtre de jeu
-screen = pg.display.set_mode((length, height))
-pg.display.set_caption('Test Mob')
+screen = pg.display.set_mode((width, height))
+pg.display.set_caption('MAEVE WORLD')
 
 # code classe déchet par chatgpt
 # Classe pour gérer les déchets
@@ -76,7 +78,7 @@ class Mobs(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 540
         self.rect.y = 600
-        self.vitesse = 10
+        self.vitesse = 50
         self.etat = ["Passif", "Co2", "Dechet"]
         self.co2 = 0
 
@@ -126,14 +128,16 @@ class Mobs(pg.sprite.Sprite):
         # Choix aléatoire d'une action toutes les 20 millisecondes
         if pg.time.get_ticks() % 20 == 0:
             action = random.choice(['0', '1', '2', '3'])
-            if action == '0':
-                self.rect.x += self.vitesse
-            elif action == '1':
-                self.rect.x -= self.vitesse
-            elif action == '2':
-                self.rect.y += self.vitesse
-            elif action == '3':
-                self.rect.y -= self.vitesse
+            if self.rect.y < height - self.vitesse-50 or self.rect.y > 0 + self.vitesse+50:
+                if action == '0':
+                    self.rect.x += self.vitesse
+                elif action == '1':
+                    self.rect.x -= self.vitesse
+            if self.rect.y < width - self.vitesse-50 or self.rect.y > 0 + self.vitesse+50:
+                if action == '2':
+                    self.rect.y += self.vitesse
+                elif action == '3':
+                    self.rect.y -= self.vitesse
 
     # fonction qui applique le filtre de couleur sur les mobs pour les différencier visuellement
     def filtre_mob(self,etat):
@@ -160,24 +164,32 @@ class Mobs(pg.sprite.Sprite):
                 filtre.fill((255, 0, 0))
                 self.image.blit(filtre, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
 
-    def get_x(self):
-        pos_x = self.rect.x
-        t = 0
-        while True :
-            t+=1
-            if t == 10:
-                x = pos_x
-                break
-        return x
-    def get_y(self):
-        pos_y = self.rect.y
-        t = 0
-        while True :
-            t+=1
-            if t == 10:
-                y = pos_y
-                break
-        return y
+def show_jeu():
+    # blit de l'écran avec l'image de backgroud, le mob et le co2
+    screen.blit(background_image, (0, 0))
+    screen.blit(mob_dechet.image, mob_dechet.rect)
+    screen.blit(mob_passif.image, mob_passif.rect)
+    screen.blit(mob_co2.image, mob_co2.rect)
+    counter_text = font.render(f"Counter CO2: {round(co2, 2)}", True, (0, 0, 0))
+    screen.blit(counter_text, (10, 10))
+    for dechet in dechets:
+        dechet.draw(screen)
+
+    # mouvement du mob
+    mob_dechet.mouvement_mob()
+    mob_passif.mouvement_mob()
+    mob_co2.mouvement_mob()
+    pg.display.flip()
+
+def show_menu():
+    screen.fill("WHITE")
+    title = font.render("Menu Principal", True, "BLACK")
+    play_text = font.render("Jouer", True, "BLACK")
+    quit_text = font.render("Quitter", True, "BLACK")
+
+    screen.blit(title, (width // 2 - title.get_width() // 2, 100))
+    screen.blit(play_text, (width // 2 - play_text.get_width() // 2, 300))
+    screen.blit(quit_text, (width // 2 - quit_text.get_width() // 2, 400))
 
 # création des objets
 mob_dechet = Mobs()
@@ -199,21 +211,6 @@ while running:
     if pg.time.get_ticks() % 1000 == 0:
         co2 += 10 ** -2 * random.randint(1, 5)
 
-    # blit de l'écran avec l'image de backgroud, le mob et le co2
-    screen.blit(background_image,(0,0))
-    screen.blit(mob_dechet.image, mob_dechet.rect)
-    screen.blit(mob_passif.image,mob_passif.rect)
-    screen.blit(mob_co2.image,mob_co2.rect)
-    counter_text = font.render(f"Counter CO2: {round(co2, 2)}", True, (0, 0, 0))
-    screen.blit(counter_text, (10, 10))
-    for dechet in dechets :
-        dechet.draw(screen)
-
-    # mouvement du mob
-    mob_dechet.mouvement_mob()
-    mob_passif.mouvement_mob()
-    mob_co2.mouvement_mob()
-    pg.display.flip()
 
     for event in pg.event.get():
 
@@ -223,24 +220,34 @@ while running:
             pg.quit()
             sys.exit()
 
-        # Events en fontions des inputs clavier
-        elif event.type == pg.KEYDOWN:
 
-            if event.key == pg.K_SPACE:
-                # Si input clavier est espace alors spawn un déchet
-                jette_un_dechet(mob.get_x(), mob.get_y())
-                print("success")
-
-        # code chatgpt
         elif event.type == pg.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Clic gauche
-                pos = event.pos
-                # Vérifiez si un déchet a été cliqué
-                for dechet in dechets[:]:  # Itérer sur une copie de la liste
-                    if dechet.is_clicked(pos):
-                        dechets.remove(dechet)
-                        print("dechet removed")
-                        # fin du code chatgpt
+            mouse_x, mouse_y = event.pos
+            if state == MENU:
+                if width // 2 - 50 < mouse_x < width // 2 + 50:
+                    if 300 < mouse_y < 350:
+                        state = JEU
+                    elif 400 < mouse_y < 450:
+                        running = False
+            elif state == JEU:
+                if width // 2 - 50 < mouse_x < width // 2 + 50 and 500 < mouse_y < 550:
+                    state = MENU
 
+
+            # code chatgpt
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Clic gauche
+                    pos = event.pos
+                    # Vérifiez si un déchet a été cliqué
+                    for dechet in dechets[:]:  # Itérer sur une copie de la liste
+                        if dechet.is_clicked(pos):
+                            dechets.remove(dechet)
+                            print("dechet removed")
+                            # fin du code chatgpt
+
+    if state == MENU:
+        show_menu()
+    elif state == JEU:
+        show_jeu()
     pg.display.flip()
     clock.tick(FPS)
