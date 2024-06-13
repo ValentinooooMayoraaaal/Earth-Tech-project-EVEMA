@@ -51,7 +51,7 @@ class Game:
         self.exit_button = Button(WIDTH // 2 + 150, HEIGTH // 2 + 110, 200, 50, 'Exit')
 
         # Adding exit button for the credit menu
-        self.credit_exit_button = Button(WIDTH // 2 - 70, HEIGTH // 2 + 180, 200, 50, 'Exit')
+        self.credit_exit_button = Button(WIDTH // 2 - 100, HEIGTH // 2 + 180, 200, 50, 'Exit')
 
     def run(self):
         while self.is_running:
@@ -77,8 +77,8 @@ class Game:
 
                 # Multi-line credits
                 credits_lines = [
-                    "Credits:",
-                    "Développeur :",
+                    "Credit",
+
                     "Esteban, Emma, Abdel, Valentino, Maïwen"
                 ]
 

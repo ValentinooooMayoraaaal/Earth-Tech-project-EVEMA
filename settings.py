@@ -1,9 +1,10 @@
-WIDTH    = 1280	
+# game setup
+WIDTH    = 1580
 HEIGTH   = 720
 FPS      = 60
 TILESIZE = 64
 
-# ui 
+# ui
 BAR_HEIGHT = 20
 HEALTH_BAR_WIDTH = 200
 ENERGY_BAR_WIDTH = 140
@@ -22,7 +23,7 @@ HEALTH_COLOR = 'red'
 ENERGY_COLOR = 'green'
 UI_BORDER_COLOR_ACTIVE = 'gold'
 
-# weapons 
+# weapons
 weapon_data = {
 	'sword': {'cooldown': 100, 'damage': 15,'graphic':'../graphics/weapons/sword/full.png'},
 	'lance': {'cooldown': 400, 'damage': 30,'graphic':'../graphics/weapons/lance/full.png'},
